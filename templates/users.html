@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Users — CourseOS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Users</h1>
+  <p>Manage students and instructors</p>
+</div>
+
+<div class="card">
+  <div class="section-header">
+    <span class="section-title">All Users <span style="color:var(--muted);font-weight:400">({{ users|length }})</span></span>
+    <button class="btn btn-primary" onclick="openModal('addUserModal')">+ Add User</button>
+  </div>
+
+  {% if users %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Created</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td style="font-family:var(--mono);color:var(--muted)">#{{ u.user_id }}</td>
+          <td style="font-weight:600">{{ u.name }}</td>
+          <td style="color:var(--muted)">{{ u.email }}</td>
+          <td>
+            {% if u.role == 'student' %}
+              <span class="badge badge-purple">{{ u.role }}</span>
+            {% elif u.role == 'instructor' %}
+              <span class="badge badge-yellow">{{ u.role }}</span>
+            {% else %}
+              <span class="badge badge-green">{{ u.role }}</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--muted);font-size:0.8rem">{{ u.created_at }}</td>
+          <td>
+            <button class="btn btn-ghost btn-sm" onclick="loadEditUser({{ u.user_id }})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteItem('/users/delete/{{ u.user_id }}','user')">Del</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="icon">◉</div>No users found. Add your first user.</div>
+  {% endif %}
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-bg" id="addUserModal">
+  <div class="modal">
+    <div class="modal-title">Add New User</div>
+    <form id="addUserForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Full Name</label>
+          <input name="name" class="form-control" placeholder="e.g. Aman Sharma" required/>
+        </div>
+        <div class="form-group"><label>Email</label>
+          <input name="email" type="email" class="form-control" placeholder="email@example.com" required/>
+        </div>
+        <div class="form-group"><label>Role</label>
+          <select name="role" class="form-control">
+            <option value="student">Student</option>
+            <option value="instructor">Instructor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Password</label>
+          <input name="password" class="form-control" placeholder="default: 123"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('addUserModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="postForm('/users/add','addUserForm','addUserModal')">Add User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="modal-bg" id="editUserModal">
+  <div class="modal">
+    <div class="modal-title">Edit User</div>
+    <form id="editUserForm">
+      <input type="hidden" name="user_id" id="editUserId"/>
+      <div class="form-grid">
+        <div class="form-group"><label>Full Name</label>
+          <input name="name" id="editUserName" class="form-control" required/>
+        </div>
+        <div class="form-group"><label>Email</label>
+          <input name="email" id="editUserEmail" type="email" class="form-control" required/>
+        </div>
+        <div class="form-group"><label>Role</label>
+          <select name="role" id="editUserRole" class="form-control">
+            <option value="student">Student</option>
+            <option value="instructor">Instructor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('editUserModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="postForm('/users/update','editUserForm','editUserModal')">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+async function loadEditUser(uid) {
+  const data = await fetch(`/users/get/${uid}`).then(r=>r.json());
+  document.getElementById('editUserId').value   = data.user_id;
+  document.getElementById('editUserName').value  = data.name;
+  document.getElementById('editUserEmail').value = data.email;
+  document.getElementById('editUserRole').value  = data.role;
+  openModal('editUserModal');
+}
+</script>
+{% endblock %}

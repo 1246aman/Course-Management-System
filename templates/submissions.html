@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Submissions — CourseOS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Submissions</h1>
+  <p>Record and view student assignment submissions</p>
+</div>
+
+<div class="card">
+  <div class="section-header">
+    <span class="section-title">All Submissions <span style="color:var(--muted);font-weight:400">({{ submissions|length }})</span></span>
+    <button class="btn btn-primary" onclick="openModal('addSubModal')">+ Add Submission</button>
+  </div>
+
+  {% if submissions %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Student</th><th>Assignment</th><th>Marks</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for s in submissions %}
+        <tr>
+          <td style="font-family:var(--mono);color:var(--muted)">#{{ s.submission_id }}</td>
+          <td style="font-weight:600">{{ s.student }}</td>
+          <td>{{ s.assignment }}</td>
+          <td>
+            <span style="font-family:var(--mono)">{{ s.marks_obtained }}</span>
+            <span style="color:var(--muted);font-size:0.78rem"> / {{ s.max_marks }}</span>
+            {% set pct = (s.marks_obtained / s.max_marks * 100)|round(0) if s.max_marks else 0 %}
+            {% if pct >= 60 %}
+              <span class="badge badge-green" style="margin-left:6px">{{ pct }}%</span>
+            {% elif pct >= 40 %}
+              <span class="badge badge-yellow" style="margin-left:6px">{{ pct }}%</span>
+            {% else %}
+              <span class="badge badge-red" style="margin-left:6px">{{ pct }}%</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--muted);font-size:0.8rem">{{ s.submission_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="icon">⊡</div>No submissions recorded yet.</div>
+  {% endif %}
+</div>
+
+<!-- ADD SUBMISSION MODAL -->
+<div class="modal-bg" id="addSubModal">
+  <div class="modal">
+    <div class="modal-title">Record Submission</div>
+    <form id="addSubForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Assignment</label>
+          <select name="assignment_id" class="form-control" required>
+            <option value="">Select assignment…</option>
+            {% for a in assignments %}
+            <option value="{{ a.assignment_id }}">{{ a.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>Student</label>
+          <select name="student_id" class="form-control" required>
+            <option value="">Select student…</option>
+            {% for s in students %}
+            <option value="{{ s.user_id }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>Marks Obtained</label>
+          <input name="marks_obtained" type="number" class="form-control" placeholder="e.g. 85" required/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('addSubModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="postForm('/submissions/add','addSubForm','addSubModal')">Record</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

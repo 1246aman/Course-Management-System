@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CourseOS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p>System overview at a glance</p>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Users</div>
+    <div class="stat-value">{{ users }}</div>
+    <div class="stat-sub">students + instructors</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Courses</div>
+    <div class="stat-value">{{ courses }}</div>
+    <div class="stat-sub">active courses</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Enrollments</div>
+    <div class="stat-value">{{ enrolls }}</div>
+    <div class="stat-sub">total enrollments</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Assignments</div>
+    <div class="stat-value">{{ assigns }}</div>
+    <div class="stat-sub">across all courses</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Avg Performance</div>
+    <div class="stat-value" style="color:var(--green)">{{ avg_perf }}%</div>
+    <div class="stat-sub">system-wide average</div>
+  </div>
+  {% if top_student %}
+  <div class="stat-card">
+    <div class="stat-label">Top Student</div>
+    <div class="stat-value" style="font-size:1.1rem; margin-top:8px; color:var(--yellow)">{{ top_student.name }}</div>
+    <div class="stat-sub">{{ top_student.pct }}% avg score</div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="section-header">
+    <span class="section-title">Recent Enrollments</span>
+    <a href="/enrollments" class="btn btn-ghost btn-sm">View All →</a>
+  </div>
+  {% if recent_enrollments %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Student</th><th>Course</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for r in recent_enrollments %}
+        <tr>
+          <td>{{ r.name }}</td>
+          <td><span class="badge badge-purple">{{ r.course_name }}</span></td>
+          <td style="color:var(--muted);font-size:0.8rem;">{{ r.enrolled_at or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="icon">⊞</div>No enrollments yet</div>
+  {% endif %}
+</div>
+{% endblock %}

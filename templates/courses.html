@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Courses — CourseOS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Courses</h1>
+  <p>Manage course catalog</p>
+</div>
+
+<div class="card">
+  <div class="section-header">
+    <span class="section-title">All Courses <span style="color:var(--muted);font-weight:400">({{ courses|length }})</span></span>
+    <button class="btn btn-primary" onclick="openModal('addCourseModal')">+ Add Course</button>
+  </div>
+
+  {% if courses %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Course Name</th><th>Description</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for c in courses %}
+        <tr>
+          <td style="font-family:var(--mono);color:var(--muted)">#{{ c.course_id }}</td>
+          <td style="font-weight:600">{{ c.course_name }}</td>
+          <td style="color:var(--muted)">{{ c.description or '—' }}</td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteItem('/courses/delete/{{ c.course_id }}','course')">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="icon">▣</div>No courses yet. Create your first course.</div>
+  {% endif %}
+</div>
+
+<!-- ADD COURSE MODAL -->
+<div class="modal-bg" id="addCourseModal">
+  <div class="modal">
+    <div class="modal-title">Add New Course</div>
+    <form id="addCourseForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Course Name</label>
+          <input name="course_name" class="form-control" placeholder="e.g. Data Structures" required/>
+        </div>
+        <div class="form-group"><label>Description</label>
+          <input name="description" class="form-control" placeholder="Brief description (optional)"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('addCourseModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="postForm('/courses/add','addCourseForm','addCourseModal')">Add Course</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

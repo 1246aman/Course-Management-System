@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{% block title %}CourseOS{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:      #080812;
+      --surface: #10101e;
+      --card:    #16162a;
+      --border:  #1e1e38;
+      --accent:  #7c6af7;
+      --accent2: #e05f9a;
+      --green:   #34d399;
+      --yellow:  #fbbf24;
+      --red:     #f87171;
+      --text:    #e2e2f0;
+      --muted:   #6b6b8e;
+      --mono:    'Space Mono', monospace;
+      --sans:    'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; display: flex; }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .sidebar {
+      width: 220px; min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 16px;
+      font-family: var(--mono); font-size: 1.1rem; font-weight: 700;
+      color: var(--accent); letter-spacing: -0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo span { color: var(--accent2); }
+    .sidebar-nav { flex: 1; padding: 12px 0; }
+    .nav-section { padding: 12px 20px 4px; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-family: var(--mono); }
+    .nav-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 20px; color: var(--muted); text-decoration: none;
+      font-size: 0.88rem; font-weight: 500; transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--text); background: rgba(124,106,247,.08);
+      border-left-color: var(--accent);
+    }
+    .nav-link .icon { font-size: 1rem; width: 18px; text-align: center; }
+
+    /* ── MAIN ────────────────────────────────── */
+    .main { margin-left: 220px; flex: 1; padding: 32px; min-height: 100vh; }
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-family: var(--mono); font-size: 1.55rem; font-weight: 700; letter-spacing: -0.5px; }
+    .page-header p { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+
+    /* ── CARDS ───────────────────────────────── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px;
+    }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+      position: relative; overflow: hidden;
+    }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--mono); }
+    .stat-value { font-size: 2rem; font-weight: 700; font-family: var(--mono); margin-top: 6px; color: var(--text); }
+    .stat-sub { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── TABLE ───────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead th { padding: 10px 14px; text-align: left; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+    tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(124,106,247,.04); }
+
+    /* ── BADGE ───────────────────────────────── */
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-family: var(--mono); font-weight: 700; }
+    .badge-green  { background: rgba(52,211,153,.15); color: var(--green); }
+    .badge-yellow { background: rgba(251,191,36,.15);  color: var(--yellow); }
+    .badge-red    { background: rgba(248,113,113,.15); color: var(--red); }
+    .badge-purple { background: rgba(124,106,247,.15); color: var(--accent); }
+
+    /* ── BUTTONS ─────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer;
+      font-family: var(--sans); font-size: 0.85rem; font-weight: 600; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #9585f9; transform: translateY(-1px); }
+    .btn-danger  { background: rgba(248,113,113,.15); color: var(--red); border: 1px solid rgba(248,113,113,.2); }
+    .btn-danger:hover  { background: var(--red); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+    .btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+
+    /* ── FORMS ───────────────────────────────── */
+    .form-grid { display: grid; gap: 16px; }
+    .form-grid-2 { grid-template-columns: 1fr 1fr; }
+    .form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group label { display: block; font-size: 0.78rem; font-family: var(--mono); color: var(--muted); margin-bottom: 6px; }
+    .form-control {
+      width: 100%; padding: 10px 14px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: var(--sans); font-size: 0.88rem;
+      transition: border-color 0.15s;
+    }
+    .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,106,247,.12); }
+    select.form-control { cursor: pointer; }
+
+    /* ── MODAL ───────────────────────────────── */
+    .modal-bg {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; width: 100%; max-width: 520px;
+      max-height: 90vh; overflow-y: auto;
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+    .modal-title { font-family: var(--mono); font-size: 1.1rem; margin-bottom: 24px; }
+    .modal-footer { margin-top: 24px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── TOAST ───────────────────────────────── */
+    .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      padding: 12px 20px; border-radius: 10px; font-size: 0.88rem; font-weight: 500;
+      border-left: 4px solid; min-width: 260px;
+      animation: fadeInToast 0.25s ease;
+    }
+    @keyframes fadeInToast { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+    .toast.success { background: rgba(52,211,153,.12); border-color: var(--green); color: var(--green); }
+    .toast.error   { background: rgba(248,113,113,.12); border-color: var(--red);   color: var(--red); }
+
+    /* ── SECTION HEADER ─────────────────────── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .section-title { font-family: var(--mono); font-size: 0.92rem; font-weight: 700; }
+
+    /* ── EMPTY ───────────────────────────────── */
+    .empty-state { text-align: center; padding: 48px; color: var(--muted); font-family: var(--mono); font-size: 0.88rem; }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo">CDAC<span>Kharghar</span></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <a href="/" class="nav-link {% if request.path=='/' %}active{% endif %}">
+        <span class="icon">◈</span> Dashboard
+      </a>
+      <div class="nav-section">Management</div>
+      <a href="/users" class="nav-link {% if '/users' in request.path %}active{% endif %}">
+        <span class="icon">◉</span> Users
+      </a>
+      <a href="/courses" class="nav-link {% if '/courses' in request.path %}active{% endif %}">
+        <span class="icon">▣</span> Courses
+      </a>
+      <a href="/enrollments" class="nav-link {% if '/enrollments' in request.path %}active{% endif %}">
+        <span class="icon">⊞</span> Enrollments
+      </a>
+      <div class="nav-section">Academics</div>
+      <a href="/assignments" class="nav-link {% if '/assignments' in request.path %}active{% endif %}">
+        <span class="icon">◫</span> Assignments
+      </a>
+      <a href="/submissions" class="nav-link {% if '/submissions' in request.path %}active{% endif %}">
+        <span class="icon">⊡</span> Submissions
+      </a>
+      <a href="/performance" class="nav-link {% if '/performance' in request.path %}active{% endif %}">
+        <span class="icon">◬</span> Performance
+      </a>
+      <div class="nav-section">Insights</div>
+      <a href="/analytics" class="nav-link {% if '/analytics' in request.path %}active{% endif %}">
+        <span class="icon">◌</span> Analytics
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+    function showToast(msg, type='success') {
+      const w = document.getElementById('toastWrap');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      w.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    document.querySelectorAll('.modal-bg').forEach(m => {
+      m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
+    });
+
+    async function postForm(url, formId, modalId) {
+      const form = document.getElementById(formId);
+      const data = new FormData(form);
+      const res  = await fetch(url, { method:'POST', body: data });
+      const json = await res.json();
+      if (json.success) {
+        showToast(json.message, 'success');
+        if (modalId) closeModal(modalId);
+        setTimeout(() => location.reload(), 900);
+      } else {
+        showToast(json.message, 'error');
+      }
+    }
+
+    async function deleteItem(url, label) {
+      if (!confirm(`Delete this ${label}? This cannot be undone.`)) return;
+      const res  = await fetch(url, { method:'POST' });
+      const json = await res.json();
+      showToast(json.message, json.success ? 'success' : 'error');
+      if (json.success) setTimeout(() => location.reload(), 900);
+    }
+  </script>
+</body>
+</html>

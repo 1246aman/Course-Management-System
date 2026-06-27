@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Performance — CourseOS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Performance</h1>
+  <p>Student grades and academic performance records</p>
+</div>
+
+<div class="card">
+  <div class="section-header">
+    <span class="section-title">Performance Records <span style="color:var(--muted);font-weight:400">({{ performance|length }})</span></span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="openModal('addPerfModal')">+ Add Record</button>
+      <button class="btn btn-primary" onclick="openModal('updateMarksModal')">✎ Update Marks</button>
+    </div>
+  </div>
+
+  {% if performance %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Student</th><th>Course</th><th>Total Marks</th><th>Percentage</th><th>Grade</th></tr></thead>
+      <tbody>
+        {% for p in performance %}
+        <tr>
+          <td style="font-family:var(--mono);color:var(--muted)">#{{ p.performance_id }}</td>
+          <td style="font-weight:600">{{ p.student }}</td>
+          <td><span class="badge badge-purple">{{ p.course_name }}</span></td>
+          <td style="font-family:var(--mono)">{{ p.total_marks }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="flex:1;height:6px;background:var(--border);border-radius:3px;min-width:80px">
+                <div style="width:{{ p.percentage or 0 }}%;height:100%;background:{% if p.percentage is not none and p.percentage >= 60 %}var(--green){% elif p.percentage is not none and p.percentage >= 40 %}var(--yellow){% else %}var(--red){% endif %};border-radius:3px"></div>
+              </div>
+              <span style="font-family:var(--mono);font-size:0.82rem">{{ p.percentage or 0 }}%</span>
+            </div>
+          </td>
+          <td>
+            {% if p.grade in ['A','A+'] %}
+              <span class="badge badge-green">{{ p.grade }}</span>
+            {% elif p.grade in ['B','B+'] %}
+              <span class="badge badge-yellow">{{ p.grade }}</span>
+            {% elif p.grade == 'F' %}
+              <span class="badge badge-red">{{ p.grade }}</span>
+            {% else %}
+              <span class="badge badge-purple">{{ p.grade or '—' }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="icon">◬</div>No performance records yet.</div>
+  {% endif %}
+</div>
+
+<!-- UPDATE MARKS MODAL -->
+<div class="modal-bg" id="updateMarksModal">
+  <div class="modal">
+    <div class="modal-title">Update Marks</div>
+    <form id="updateMarksForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Student</label>
+          <select name="student_id" class="form-control" required>
+            <option value="">Select student…</option>
+            {% for s in students %}
+            <option value="{{ s.user_id }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>Course</label>
+          <select name="course_id" class="form-control" required>
+            <option value="">Select course…</option>
+            {% for c in courses %}
+            <option value="{{ c.course_id }}">{{ c.course_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>New Total Marks</label>
+          <input name="total_marks" type="number" class="form-control" placeholder="e.g. 85" required/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('updateMarksModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="postForm('/performance/update','updateMarksForm','updateMarksModal')">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ADD PERFORMANCE MODAL -->
+<div class="modal-bg" id="addPerfModal">
+  <div class="modal">
+    <div class="modal-title">Add Performance Record</div>
+    <form id="addPerfForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Student</label>
+          <select name="student_id" class="form-control" required>
+            <option value="">Select student…</option>
+            {% for s in students %}
+            <option value="{{ s.user_id }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>Course</label>
+          <select name="course_id" class="form-control" required>
+            <option value="">Select course…</option>
+            {% for c in courses %}
+            <option value="{{ c.course_id }}">{{ c.course_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>Total Marks</label>
+          <input name="total_marks" type="number" class="form-control" placeholder="e.g. 78" required/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('addPerfModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="postForm('/performance/add','addPerfForm','addPerfModal')">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

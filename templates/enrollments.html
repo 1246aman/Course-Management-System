@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Enrollments — CourseOS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Enrollments</h1>
+  <p>Track which students are enrolled in which courses</p>
+</div>
+
+<div class="card">
+  <div class="section-header">
+    <span class="section-title">All Enrollments <span style="color:var(--muted);font-weight:400">({{ enrollments|length }})</span></span>
+    <button class="btn btn-primary" onclick="openModal('enrollModal')">+ Enroll Student</button>
+  </div>
+
+  {% if enrollments %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Student</th><th>Course</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for e in enrollments %}
+        <tr>
+          <td style="font-family:var(--mono);color:var(--muted)">#{{ e.enrollment_id }}</td>
+          <td style="font-weight:600">{{ e.student }}</td>
+          <td><span class="badge badge-purple">{{ e.course_name }}</span></td>
+          <td style="color:var(--muted);font-size:0.8rem">{{ e.enrolled_at }}</td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteItem('/enrollments/delete/{{ e.enrollment_id }}','enrollment')">Remove</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="icon">⊞</div>No enrollments yet.</div>
+  {% endif %}
+</div>
+
+<!-- ENROLL MODAL -->
+<div class="modal-bg" id="enrollModal">
+  <div class="modal">
+    <div class="modal-title">Enroll Student</div>
+    <form id="enrollForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Student</label>
+          <select name="student_id" class="form-control" required>
+            <option value="">Select student…</option>
+            {% for s in students %}
+            <option value="{{ s.user_id }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>Course</label>
+          <select name="course_id" class="form-control" required>
+            <option value="">Select course…</option>
+            {% for c in courses %}
+            <option value="{{ c.course_id }}">{{ c.course_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('enrollModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="postForm('/enrollments/add','enrollForm','enrollModal')">Enroll</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
